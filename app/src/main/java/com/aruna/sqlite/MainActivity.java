@@ -131,6 +131,37 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void update() {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        //      New value for one column
+        String title = "MyNewTitle";
+        ContentValues values = new ContentValues();
+        values.put(FeedReaderContract.FeedEntry.COLUMN_NAME_TITLE, title);
+
+        // Which row to update, based on the title
+        String selection = FeedReaderContract.FeedEntry.COLUMN_NAME_TITLE + " LIKE ?";
+        String[] selectionArgs = { "MyOldTitle" };
+
+        int count = db.update(
+                FeedReaderContract.FeedEntry.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs);
+
+        tv_data.setText(" Update : " + count );
+    }
+
+    private void delete() {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        // Define 'where' part of query.
+        String selection = FeedReaderContract.FeedEntry.COLUMN_NAME_TITLE + " LIKE ?";
+        // Specify arguments in placeholder order.
+        String[] selectionArgs = { "MyTitle" };
+        // Issue SQL statement.
+        int deletedRows = db.delete(FeedReaderContract.FeedEntry.TABLE_NAME, selection, selectionArgs);
+    }
+
 
     public class FeedReaderDbHelper extends SQLiteOpenHelper {
         // If you change the database schema, you must increment the database version.
@@ -152,5 +183,11 @@ public class MainActivity extends AppCompatActivity {
         public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             onUpgrade(db, oldVersion, newVersion);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        mDbHelper.close();
+        super.onDestroy();
     }
 }
